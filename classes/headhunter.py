@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 from classes.abstract_parser_classes import VacancyAPI, VacancyManager
 
 
@@ -74,7 +75,7 @@ class JsonVacancyManager(VacancyManager):
 
     def save_data(self):
         with open(self.file_path, 'w', encoding='utf-8') as file:
-            json.dump(self.vacancies, file, ensure_ascii=False)
+            json.dump(self.vacancies, file, ensure_ascii=False, indent=2)
 
     def add_vacancy(self, vacancy_data):
         # Преобразование объекта Vacancy в словарь, если он имеет атрибуты
@@ -96,3 +97,36 @@ class JsonVacancyManager(VacancyManager):
     def delete_vacancy(self, vacancy):
         self.vacancies = [v for v in self.vacancies if v != vars(vacancy)]
         self.save_data()
+
+
+class SJVacancyAPI(VacancyAPI):
+
+    sj_api_key = os.getenv('YT_API_KEY')
+
+    def __init__(self):
+        super().__init__()
+        self.base_url = "https://api.superjob.ru/"
+
+    def get_vacancies(self, search_query):
+        # реализация получения вакансий с hh.ru
+        url = f"{self.base_url}vacancies"
+        params = {'text': search_query}
+        headers = {
+            'X-Api-App-Id': os.getenv('sj_api_key'),
+        }
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            vacancies = []
+            for item in data['items']:
+                title = item.get('name', '')
+                link = item.get('alternate_url', '')
+                salary = item['salary']['from'] if item['salary'] and 'from' in item['salary'] else None
+                description = item['snippet']['responsibility'] if 'snippet' in item else ''
+                new_vacancy = Vacancy(title, link, salary, description)
+                vacancies.append(new_vacancy)
+            return vacancies
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+            return None

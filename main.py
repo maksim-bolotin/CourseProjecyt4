@@ -1,4 +1,4 @@
-from classes.headhunter import HhVacancyAPI, JsonVacancyManager, Vacancy
+from classes.headhunter import HhVacancyAPI, JsonVacancyManager, Vacancy, SJVacancyAPI
 from utils import print_vacancies
 
 
@@ -6,9 +6,26 @@ def user_interaction():
     hh_api = HhVacancyAPI()
     json_saver = JsonVacancyManager()
     vacancies = []
-    # superjob_api = SuperJobAPI()
+    superjob_api = SJVacancyAPI()
 
     while True:
+        print("\nВыберите источник вакансий:")
+        print("1. HeadHunter")
+        print("2. SuperJob")
+        print("3. Выход")
+
+        source_choice = input("Выберите источник: ")
+
+        if source_choice == "1":
+            api = hh_api
+        elif source_choice == "2":
+            api = superjob_api
+        elif source_choice == "3":
+            break
+        else:
+            print("Некорректный выбор источника. Пожалуйста, выберите снова.")
+            continue
+
         print("\n1. Получить вакансии")
         print("2. Добавить вакансию в файл")
         print("3. Получить вакансии из файла по критериям")
@@ -18,7 +35,7 @@ def user_interaction():
         choice = input("Выберите действие: ")
         if choice == "1":
             search_query = input("Введите поисковый запрос: ")
-            vacancies = hh_api.get_vacancies(search_query)
+            vacancies = api.get_vacancies(search_query)
             print_vacancies(vacancies)
         elif choice == "2":
             if vacancies:
