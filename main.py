@@ -1,4 +1,4 @@
-from classes.headhunter import HhVacancyAPI, JsonVacancyManager, Vacancy, SJVacancyAPI
+from classes.headhunter_and_SJ import HhVacancyAPI, JsonVacancyManager, Vacancy, SJVacancyAPI
 from utils import print_vacancies
 
 
@@ -9,24 +9,7 @@ def user_interaction():
     superjob_api = SJVacancyAPI()
 
     while True:
-        print("\nВыберите источник вакансий:")
-        print("1. HeadHunter")
-        print("2. SuperJob")
-        print("3. Выход")
-
-        source_choice = input("Выберите источник: ")
-
-        if source_choice == "1":
-            api = hh_api
-        elif source_choice == "2":
-            api = superjob_api
-        elif source_choice == "3":
-            break
-        else:
-            print("Некорректный выбор источника. Пожалуйста, выберите снова.")
-            continue
-
-        print("\n1. Получить вакансии")
+        print("\n1. Выбрать источник вакансий")
         print("2. Добавить вакансию в файл")
         print("3. Получить вакансии из файла по критериям")
         print("4. Удалить вакансию из файла")
@@ -34,9 +17,17 @@ def user_interaction():
 
         choice = input("Выберите действие: ")
         if choice == "1":
-            search_query = input("Введите поисковый запрос: ")
-            vacancies = api.get_vacancies(search_query)
-            print_vacancies(vacancies)
+            print("\n1. HeadHunter")
+            print("2. SuperJob")
+            source_choice = input("Выберите источник вакансий: ")
+            if source_choice == "1":
+                vacancies = hh_api.get_vacancies(input("Введите поисковый запрос: "))
+                print_vacancies(vacancies)
+            elif source_choice == "2":
+                vacancies = superjob_api.get_vacancies(input("Введите поисковый запрос: "))
+                print_vacancies(vacancies)
+            else:
+                print("Неправильный выбор источника. Пожалуйста, выберите снова.")
         elif choice == "2":
             if vacancies:
                 selected_index = int(input("Введите номер вакансии для добавления: ")) - 1
@@ -44,7 +35,6 @@ def user_interaction():
                     selected_vacancy_data = vacancies[selected_index]
                     selected_vacancy = Vacancy(selected_vacancy_data.title, selected_vacancy_data.link,
                                                selected_vacancy_data.salary, selected_vacancy_data.description)
-
                     json_saver.add_vacancy(selected_vacancy)
                     print("Вакансия успешно добавлена.")
                 except IndexError:
@@ -65,7 +55,6 @@ def user_interaction():
                                                  selected_vacancy_data_to_remove["description"])
             json_saver.delete_vacancy(selected_vacancy_to_remove)
             print("Вакансия успешно удалена.")
-
         elif choice == "5":
             break
         else:

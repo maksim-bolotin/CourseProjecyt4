@@ -101,11 +101,11 @@ class JsonVacancyManager(VacancyManager):
 
 class SJVacancyAPI(VacancyAPI):
 
-    sj_api_key = os.getenv('YT_API_KEY')
+    sj_api_key = os.getenv('SJ_API_KEY')
 
     def __init__(self):
         super().__init__()
-        self.base_url = "https://api.superjob.ru/"
+        self.base_url = "https://api.superjob.ru/2.0/"
 
     def get_vacancies(self, search_query):
         # реализация получения вакансий с hh.ru
