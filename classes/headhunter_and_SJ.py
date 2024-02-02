@@ -101,7 +101,8 @@ class JsonVacancyManager(VacancyManager):
 
 class SJVacancyAPI(VacancyAPI):
 
-    sj_api_key = os.getenv('SJ_API_KEY')
+    # sj_api_key = os.getenv('SJ_API_KEY')
+    sj_api_key = "v3.h.4579838.1fd485985c5782a93a5cba49d0834bb685859e82.7de607470b54b16dfe2a2bd3ed0347f7d57d8a5a"
 
     def __init__(self):
         super().__init__()
@@ -112,18 +113,18 @@ class SJVacancyAPI(VacancyAPI):
         url = f"{self.base_url}vacancies"
         params = {'text': search_query}
         headers = {
-            'X-Api-App-Id': os.getenv('sj_api_key'),
+            'X-Api-App-Id': self.sj_api_key,
         }
         try:
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
             data = response.json()
             vacancies = []
-            for item in data['items']:
-                title = item.get('name', '')
-                link = item.get('alternate_url', '')
-                salary = item['salary']['from'] if item['salary'] and 'from' in item['salary'] else None
-                description = item['snippet']['responsibility'] if 'snippet' in item else ''
+            for item in data['objects']:
+                title = item.get('profession', '')
+                link = item.get('link', '')
+                salary = item.get('payment_to', '') if 'payment_to' in item else None
+                description = item['candidat'] if 'candidat' in item else ''
                 new_vacancy = Vacancy(title, link, salary, description)
                 vacancies.append(new_vacancy)
             return vacancies
