@@ -5,8 +5,8 @@ from utils import print_vacancies
 def user_interaction():
     hh_api = HhVacancyAPI()
     json_saver = JsonVacancyManager()
-    vacancies = []
     superjob_api = SJVacancyAPI()
+    vacancies = []
 
     while True:
         print("\n1. Выбрать источник вакансий")
@@ -42,11 +42,29 @@ def user_interaction():
             else:
                 print("нет вакансии для добавления")
         elif choice == "3":
-            criteria = {"salary": input("Введите зарплату: "),
+            criteria = {"salary": input("Введите диапазон зарплаты (например, 100000-150000): "),
                         "description": input("Введите ключевое слово в описании: ")}
             matching_vacancies = json_saver.get_vacancies(criteria)
             print_vacancies(matching_vacancies)
         elif choice == "4":
+            try:
+                if not json_saver.vacancies:
+                    print("Файл вакансий пуст. Нет вакансий для удаления.")
+                    continue
+                selected_index_to_remove = int(input("Введите номер вакансии для удаления: ")) - 1
+                deleted_vacancy = json_saver.delete_vacancy(selected_index_to_remove)
+                if deleted_vacancy is not None:
+                    print(f"Вакансия {deleted_vacancy['title']} успешно удалена.")
+                else:
+                    print("Несуществующий индекс. Пожалуйста, выберите существующий номер.")
+            except (ValueError, IndexError):
+                print("Некорректный ввод. Пожалуйста, введите номер вакансии из списка.")
+        elif choice == "5":
+            criteria = {"salary": input("Введите зарплату: "),
+                        "description": input("Введите ключевое слово в описании: ")}
+            matching_vacancies = json_saver.get_vacancies(criteria)
+            print_vacancies(matching_vacancies)
+        elif choice == "6":
             selected_index_to_remove = int(input("Введите номер вакансии для удаления: ")) - 1
             selected_vacancy_data_to_remove = vacancies[selected_index_to_remove]
             selected_vacancy_to_remove = Vacancy(selected_vacancy_data_to_remove["title"],
@@ -55,7 +73,7 @@ def user_interaction():
                                                  selected_vacancy_data_to_remove["description"])
             json_saver.delete_vacancy(selected_vacancy_to_remove)
             print("Вакансия успешно удалена.")
-        elif choice == "5":
+        elif choice == "7":
             break
         else:
             print("Некорректный выбор. Пожалуйста, выберите снова.")
